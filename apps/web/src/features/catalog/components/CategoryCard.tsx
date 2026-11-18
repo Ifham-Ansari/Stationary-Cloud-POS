@@ -1,20 +1,71 @@
 'use client';
 
-import { PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react';
+import { DownloadIcon, PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 import type { CategoryFieldsFragment } from '@/graphql/__generated__/graphql';
 
+const EXPORT_FORMATS = [
+  { format: 'csv', label: 'CSV' },
+  { format: 'xlsx', label: 'Excel (.xlsx)' },
+  { format: 'pdf', label: 'PDF' },
+] as const;
+
+export type CategoryExportFormat = (typeof EXPORT_FORMATS)[number]['format'];
+
 export interface CategoryCardActions {
+  exporting: boolean;
   onAddProduct: (category: CategoryFieldsFragment) => void;
   onEdit: (category: CategoryFieldsFragment) => void;
   onDelete: (category: CategoryFieldsFragment) => void;
+  onExport: (category: CategoryFieldsFragment, format: CategoryExportFormat) => void;
 }
 
-/** One category in the grid (FEATURES.md §3.4): count, View products, Add product, Edit, Delete. */
+function CategoryExportMenu({
+  category,
+  actions,
+}: {
+  category: CategoryFieldsFragment;
+  actions: CategoryCardActions;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          size="sm"
+          variant="outline"
+          aria-label={`Export ${category.name}`}
+          disabled={actions.exporting}
+        >
+          <DownloadIcon /> Export
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        {EXPORT_FORMATS.map(({ format, label }) => (
+          <DropdownMenuItem
+            key={format}
+            onSelect={() => {
+              actions.onExport(category, format);
+            }}
+          >
+            {label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+/** One category in the grid (FEATURES.md §3.4): count, view, export, add, edit and delete. */
 export function CategoryCard({
   category,
   actions,
@@ -48,6 +99,7 @@ export function CategoryCard({
         >
           <PlusIcon /> Add product
         </Button>
+        <CategoryExportMenu category={category} actions={actions} />
         <Button
           size="sm"
           variant="ghost"

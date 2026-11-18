@@ -75,6 +75,7 @@ describe('ProductSearchBar (F-18, NET-07)', () => {
       vi.advanceTimersByTime(WELL_PAST_THE_WINDOW);
     });
     expect(input.value).toBe('');
+    expect(onSearch).toHaveBeenCalledWith('');
     expect(onSearch).not.toHaveBeenCalledWith(BARCODE);
   });
 

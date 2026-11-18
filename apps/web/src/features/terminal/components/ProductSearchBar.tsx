@@ -44,6 +44,7 @@ export function ProductSearchBar({ onSearch }: { onSearch: (search: string) => v
     try {
       if (await scan(code)) {
         setText('');
+        onSearch('');
       } else {
         onSearch(code);
       }

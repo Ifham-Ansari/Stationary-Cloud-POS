@@ -186,7 +186,7 @@ relevance, pagination and backend entities. "Real-time" and "pagination" entries
 |---|---|
 | Purpose | Group products; drive terminal category chips |
 | Roles | Admin (manage); cashier sees chips only |
-| Grid (C) | Card per category: name, product count, View Products, + Add Product, Edit, Delete. About 22 categories exist (`#38`) |
+| Grid (C) | Card per category: name, product count, View Products, export products as CSV/XLSX/PDF, + Add Product, Edit, Delete. About 22 categories exist (`#38`) |
 | Form (C) | Name · Icon (emoji, optional) · Description (optional) |
 | Detail (C) `#12` | Count header, + Add Product, table (adds an Expiry column; action "Manage"), per-page selector (20 shown), "Showing 1–1 of 1 products", prev/next |
 | Pagination | The grid is small; the detail table needs the 50-cap contract |

@@ -8,6 +8,7 @@ import { DeleteConfirm } from '@/components/feedback/DeleteConfirm';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { useCursorPages } from '@/hooks/useCursorPages';
+import { useFileDownload } from '@/hooks/useFileDownload';
 
 import { CategoriesDocument } from '../graphql/categories.documents';
 import { useDeleteCategory } from '../hooks/useDeleteCategory';
@@ -16,6 +17,7 @@ import { CategoryFormDialog } from './CategoryFormDialog';
 import { CategoryGrid } from './CategoryGrid';
 import { ProductFormDialog } from './ProductFormDialog';
 
+import type { CategoryExportFormat } from './CategoryCard';
 import type { CategoryFieldsFragment } from '@/graphql/__generated__/graphql';
 
 type Dialog =
@@ -28,6 +30,7 @@ export function CategoriesScreen() {
   const pages = useCursorPages();
   const [dialog, setDialog] = useState<Dialog>(null);
   const deletion = useDeleteCategory();
+  const { download, busy: exporting } = useFileDownload();
   const { data, error } = useQuery(CategoriesDocument, { variables: { after: pages.after } });
   const close = (open: boolean): void => {
     if (!open) setDialog(null);
@@ -54,6 +57,7 @@ export function CategoriesScreen() {
         error={error}
         pages={pages}
         actions={{
+          exporting,
           onAddProduct: (category) => {
             setDialog({ kind: 'product', categoryId: category.id });
           },
@@ -61,6 +65,16 @@ export function CategoriesScreen() {
             setDialog({ kind: 'category', category });
           },
           onDelete: deletion.control.ask,
+          onExport: (category, format: CategoryExportFormat) => {
+            const categoryName =
+              category.name.replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '') ||
+              category.id;
+            const categoryId = encodeURIComponent(category.id);
+            void download(
+              `/v1/exports/products?format=${format}&categoryId=${categoryId}`,
+              `products-${categoryName}.${format}`,
+            );
+          },
         }}
       />
       {dialog?.kind === 'category' && (
